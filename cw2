@@ -1,0 +1,97 @@
+# Aploges for any spelling or grammer issues in commentary, not the best at it.
+
+import sys
+import getopt
+import json
+import pandas as pd
+import pycountry
+import pycountry_convert as pc
+import numpy as np
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+import graphviz
+from tqdm import tqdm
+from tkinter import *
+from tkinter.ttk import *
+from PIL import ImageTk, Image
+
+from Task2 import *
+from Task3 import *
+from Task4 import *
+from AlsoLikes import *
+from Task7 import * # Imports the functions from the other .py documents
+
+def main(argv): # The main function, this is run then this file is run
+    inputFile = "" # Creates empty variables to hold the inputfile name/location
+    docUUID = "" #  Document UUID
+    userUUID = "" # User UUID
+    taskID = "" # Task to be run
+
+    try:
+        opts, args = getopt.getopt(argv,"hu:d:t:f:",["uUUID=","dUUID=","tID=","iFile="]) # Checks the arguments inputted by the user
+    except getopt.GetoptError:
+        print("cw2 -u user_uuid -d doc_uuid -t task_id -f file_name") # If invalid stop the program and output error message
+        sys.exit(0)
+
+    for opt, arg in opts:
+        if opt == "-h" or opt == "-help": # If the user input the help argument end the program and display some help
+            print("cw2 -u 'user_uuid' -d 'doc_uuid' -t 'task_id' -f 'file_name'")
+            print("task_id: '2a', '2b', '3a', '3b', '4', '5d', '6', '7'")
+            sys.exit(0)
+        if opt == "-u": # If the userUUID argument is inputed, save the next string as the userUUID.
+            userUUID = arg
+        if opt == "-d": # If the docUUID argument is inputed, save the next string as the docUUID.
+            docUUID = arg
+        if opt == "-t": # If the taskID argument is inputed, save the next string as the taskID.
+            taskID = arg
+        if opt == "-f": # If the inputFile argument is inputed, save the next string as the inputFile.
+            inputFile = arg
+
+    if taskID == "7": #  If the task entered was task 7 then call the GUI in Task7.py to take the user inputs
+        guiInput = task7(docUUID, userUUID, inputFile)
+        inputFile = guiInput[0] # Then save them in the varaibles
+        docUUID = guiInput[1]
+        userUUID = guiInput[2]
+
+    if inputFile == "": # If the user has not input an input file then display an error messge and end the program
+        print("Error: -f 'file_name' required")
+        sys.exit(0)
+
+    serialData = []
+    print("Loading Data from " + inputFile + "...")
+    pdData = pd.read_json(inputFile, lines=True) # Load the json objects as rows in a pandas Dats Frame, Note that the this can take some time, the program *likey* has not crashed
+    print("Success!")
+
+    if taskID == "2a" or taskID == "2b": #  If the user input 2a or 2b as the taskID then load task2 function from Task2.py
+        task2(docUUID, userUUID, taskID, pdData)
+
+    elif taskID == "3a" or taskID == "3b": #  If the user input 3a or 3b as the taskID then load task3 function from Task3.py
+        task3(docUUID, userUUID, taskID, pdData)
+
+    elif taskID == "4": #  If the user input 4 as the taskID then load task4 function from Task4.py
+        task4(docUUID, userUUID, taskID, pdData)
+
+    elif taskID == "5d": #  If the user input 5d as the taskID then load task5d function from AlsoLikes.py
+        task5d(docUUID, userUUID, taskID, pdData)
+
+    elif taskID == "6" or taskID == "7": #  If the user input 6 or 7 as the taskID then load task6 function from AlsoLikes.py
+        task6(docUUID, userUUID, taskID, pdData)
+
+    elif taskID == "": # If no taskID has been entered then run the notask funtion
+        notask()
+
+    else: # If the taskID isn't found then run the invalidtask function
+        invalidtask()
+
+def notask(): # If no taskID then print error message and end program
+    print("Error: -t 'task_id' required")
+    print("task_id: '2a', '2b', '3a', '3b', '4', '5d', '6', '7'")
+    sys.exit(0)
+
+def invalidtask(): # If invalid taskID then print error message and end program
+    print("Error: Invalid task_id")
+    print("task_id: '2a', '2b', '3a', '3b', '4', '5d', '6', '7'")
+    sys.exit(0)
+
+if __name__ == "__main__": # If this file is run then the main function is run, passing the user arguments.
+    main(sys.argv[1:])
